@@ -1,0 +1,1 @@
+c=[CHUNKS],d="";for(let i=0;i<c.length;i++)d+=await (await fetch(`/c/${c[i]}`)).text();(s=document.createElement("script")).innerHTML=d,document.head.appendChild(s);
