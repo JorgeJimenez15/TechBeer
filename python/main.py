@@ -69,7 +69,7 @@ def api(request):
     # Update PIN code
     elif action == "update-pin-code":
         if pin == PIN:
-            # PIN = data
+            PIN = data
             result = "Success"
         else: result = "Invalid PIN code"
 

@@ -7,7 +7,8 @@ Chart.register(CategoryScale)
 Chart.register(LinearScale)
 
 export default class TechBeer {
-    constructor() {
+    constructor(range) {
+        this.range = range
         this.pin = '0000'
         this.temperature = {
             number: 41,
@@ -89,12 +90,25 @@ export default class TechBeer {
     }
 
     updateTemperature() {
-        document.getElementById('temperature').innerText = this.temperature.state === 'cold' ? `🧊 ${this.temperature.number} °F` : `🔥 ${this.temperature.number} °F`
+        this.api("get-current-temperature", 0, this.pin).then((response) => {
+            this.temperature.number = this.convertToFahrenheit(response)
+            this.temperature.state = this.temperature.number > this.range ? 'hot' : this.temperature.number <= this.range ? 'warm' : 'cold'
+            document.getElementById('temperature').innerText = this.temperature.state === 'cold' ? `🧊 ${this.temperature.number} °F` : `🔥 ${this.temperature.number} °F`
+        })
+    }
+
+    updatePinCode(value){
+        this.api("update-pin-code", value).then((response) => {
+            if (response.success) {
+                this.pin = value
+                document.getElementById('pin').innerText = this.pin
+            }
+        })
+        
     }
 
     updateSentence() {
         if (this.sentence.index === 10) this.sentence.index = 0
-
         document.getElementById('sentence').innerText = this.sentence[this.temperature.state][this.sentence.index++]
     }
 }
