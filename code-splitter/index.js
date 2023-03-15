@@ -45,21 +45,9 @@ function scriptFile(chunks) {
     return content
 }
 
-function routeFile(chunks) {
-    const route = fs.readFileSync('src/route.py', 'utf8')
-    let content = ''
-
-    for (let index = 0; index < chunks.length; index++) {
-        content += route.replace(/{CHUNK}/g, chunks[index])
-    }
-
-    return content
-}
-
 function main() {
     const files = fs.readdirSync('../frontend/dist/assets/')
     let loader = '(async()=>{let c,d,s;'
-    let route = '@server.route("/l.js")\ndef cl(_):\n\tf = open("l.js", "r")\n\treturn f.read(), 200\n'
 
     for (const file of files) {
         const extension = file.split('.').pop()
@@ -67,15 +55,12 @@ function main() {
         
         if (extension === 'css') loader += styleFile(chunks)
         else loader += scriptFile(chunks)
-
-        route += routeFile(chunks)
     }
 
     loader += 'document.getElementById("l").style.display="none",document.getElementById("a").style.display="block"})()'
 
     htmlFile()
     fs.writeFileSync('dist/l.js', loader)
-    fs.writeFileSync('dist/route.py', route)
 }
 
 main()
