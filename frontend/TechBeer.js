@@ -44,10 +44,10 @@ export default class TechBeer {
         this.chart = new Chart(document.getElementById('temperature-chart'), {
             type: 'line',
             data: {
-                labels: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
+                labels: [],
                 datasets: [{
                     label: 'Temperature',
-                    data: [68, 77, 68, 64, 48, 41],
+                    data: [],
                     borderColor: '#00acc1',
                     tension: 0.4
                 }]
@@ -60,7 +60,6 @@ export default class TechBeer {
 
         // Intervals
         this.updateInterval = setInterval(this.update.bind(this), 5_000)
-        this.sentenceInterval = setInterval(this.updateSentence.bind(this), 10_000)
 
         // Event listeners
         // Update
@@ -80,14 +79,8 @@ export default class TechBeer {
 
     async api(action, data) {
         console.log(action)
-        const response = await fetch('/api', {
-            method: 'POST',
-            body: JSON.stringify({
-                action,
-                data,
-                pin: this.pin
-            })
-        })
+
+        const response = await fetch(`/api?action=${action}&data=${data}&pin=${this.pin}`)
 
         return await response.text()
     }
@@ -102,6 +95,7 @@ export default class TechBeer {
         const response = await this.api('login', pin.value)
 
         if (response === 'Success') {
+            this.pin = pin.value
             document.getElementById('login').style.display = 'none'
             document.getElementById('dashboard').style.display = 'block'
         }
@@ -113,10 +107,18 @@ export default class TechBeer {
         // Update temperature
         const response = await this.api('get-current-temperature', '')
 
-        this.temperature.number = this.convertToFahrenheit(response)
+        this.temperature.number = Math.round(this.convertToFahrenheit(response) * 100) / 100
         this.temperature.state = this.temperature.number > this.temperature.range ? 'hot' : 'cold'
 
         document.getElementById('temperature').innerText = this.temperature.state === 'cold' ? `🧊 ${this.temperature.number} °F` : `🔥 ${this.temperature.number} °F`
+
+        // Update chart
+        this.chart.data.labels.push(new Date().toLocaleTimeString())
+        this.chart.data.datasets[0].data.push(this.temperature.number)
+        
+        this.chart.update()
+
+        this.updateSentence()
     }
 
     updateSentence() {
@@ -129,7 +131,7 @@ export default class TechBeer {
         const newRange = document.getElementById('range').value
         const response = await this.api('modify-temperature-range', newRange)
 
-        if (response === 'Success') this.temperature.range = newRange
+        if (response === 'Success') this.temperature.range = parseInt(newRange)
     }
 
     async modifyLedColor() {}

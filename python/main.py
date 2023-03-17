@@ -31,48 +31,51 @@ def chunk(_, chunk):
     return f.read(), 200
 
 # Backend
-@server.route("/api", methods=["POST"])
+@server.route("/api", methods=["GET"])
 def api(request):
     global PIN
     global TEMPERATURE_RANGE
     global LED_COLOR
 
-    action = request.data["action"]
-    data = request.data["data"]
-    pin = request.data["pin"]
+    action = request.query["action"]
+    data = request.query["data"]
+    pin = request.query["pin"]
 
     result = f"{action},{data},{pin}"
 
-    # Log in
-    if action == "login":
-        if data == PIN: result = "Success"
-        else: result = "Invalid PIN code"
+    try:
+        # Log in
+        if action == "login":
+            if data == PIN: result = "Success"
+            else: result = "Invalid PIN code"
 
-    # Get current temperature
-    elif action == "get-current-temperature":
-        result = f"{sensor.temperature}"
+        # Get current temperature
+        elif action == "get-current-temperature":
+            result = f"{sensor.temperature}"
 
-    # Modify temperature range
-    elif action == "modify-temperature-range":
-        if pin == PIN:
-            TEMPERATURE_RANGE = data
-            result = "Success"
-        else: result = "Invalid PIN code"
+        # Modify temperature range
+        elif action == "modify-temperature-range":
+            if pin == PIN:
+                TEMPERATURE_RANGE = data
+                result = "Success"
+            else: result = "Invalid PIN code"
 
-    # Modify led color
-    elif action == "modify-led-color":
-        if pin == PIN:
-            LED_COLOR = data
-            result = "Success"
-        else: result = "Invalid PIN code"
+        # Modify led color
+        elif action == "modify-led-color":
+            if pin == PIN:
+                LED_COLOR = data
+                result = "Success"
+            else: result = "Invalid PIN code"
+
+        # Update PIN code
+        elif action == "update-pin-code":
+            if pin == PIN:
+                PIN = data
+                result = "Success"
+            else: result = "Invalid PIN code"
+    except:
+        return "Internal server error", 500
     
-    # Update PIN code
-    elif action == "update-pin-code":
-        if pin == PIN:
-            # PIN = data
-            result = "Success"
-        else: result = "Invalid PIN code"
-
     return result, 200
 
 # Captive portal detection
