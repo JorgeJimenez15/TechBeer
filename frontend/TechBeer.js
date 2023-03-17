@@ -11,6 +11,7 @@ export default class TechBeer {
         this.pin = '0000'
         this.temperature = {
             number: 41,
+            range: 32,
             state: 'cold'
         }
         this.sentence = {
@@ -62,10 +63,23 @@ export default class TechBeer {
         this.sentenceInterval = setInterval(this.updateSentence.bind(this), 10_000)
 
         // Event listeners
+        // Update
+        document.getElementById('range').addEventListener('input', event => {
+            document.getElementById('range-text').innerText = event.target.value
+        })
+        document.getElementById('color').addEventListener('input', event => {
+            document.getElementById('color-text').innerText = event.target.value
+        })
+
+        // Click
+        document.getElementById('login-btn').addEventListener('click', this.login.bind(this))
+        document.getElementById('modify-temperature-range-btn').addEventListener('click', this.modifyTemperatureRange.bind(this))
+        document.getElementById('modify-led-color-btn').addEventListener('click', this.modifyLedColor.bind(this))
         document.getElementById('update-pin-code-btn').addEventListener('click', this.updatePinCode.bind(this))
     }
 
     async api(action, data) {
+        console.log(action)
         const response = await fetch('/api', {
             method: 'POST',
             body: JSON.stringify({
@@ -75,20 +89,34 @@ export default class TechBeer {
             })
         })
 
-        return await response.json()
+        return await response.text()
     }
 
     convertToFahrenheit(celsius) {
         return celsius * 1.8 + 32
     }
 
-    update() {
+    // API Requests
+    async login() {
+        const pin = document.getElementById('pin')
+        const response = await this.api('login', pin.value)
+
+        if (response === 'Success') {
+            document.getElementById('login').style.display = 'none'
+            document.getElementById('dashboard').style.display = 'block'
+        }
+
+        pin.value = ''
+    }
+
+    async update() {
         // Update temperature
-        this.api('get-current-temperature', 0, this.pin).then((response) => {
-            this.temperature.number = this.convertToFahrenheit(response)
-            this.temperature.state = this.temperature.number > this.range ? 'hot' : this.temperature.number <= this.range ? 'warm' : 'cold'
-            document.getElementById('temperature').innerText = this.temperature.state === 'cold' ? `🧊 ${this.temperature.number} °F` : `🔥 ${this.temperature.number} °F`
-        })
+        const response = await this.api('get-current-temperature', '')
+
+        this.temperature.number = this.convertToFahrenheit(response)
+        this.temperature.state = this.temperature.number > this.temperature.range ? 'hot' : 'cold'
+
+        document.getElementById('temperature').innerText = this.temperature.state === 'cold' ? `🧊 ${this.temperature.number} °F` : `🔥 ${this.temperature.number} °F`
     }
 
     updateSentence() {
@@ -97,17 +125,19 @@ export default class TechBeer {
         document.getElementById('sentence').innerText = this.sentence[this.temperature.state][this.sentence.index++]
     }
 
+    async modifyTemperatureRange() {
+        const newRange = document.getElementById('range').value
+        const response = await this.api('modify-temperature-range', newRange)
+
+        if (response === 'Success') this.temperature.range = newRange
+    }
+
+    async modifyLedColor() {}
+
     async updatePinCode() {
         const newPin = document.getElementById('newpin').value
         const response = await this.api('update-pin-code', newPin)
 
         if (response === 'Success') this.pin = newPin
-    }
-
-    async updateRange() {
-        const newRange = document.getElementById('range').value
-        const response = await this.api('modify-temperature-range', newRange)
-
-        if (response === 'Success') this.range = newRange
     }
 }

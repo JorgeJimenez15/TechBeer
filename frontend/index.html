@@ -13,12 +13,12 @@
         <article>
             <h3>Modify temperature range</h3>
             
-            <label for="range">Selected temperature: 50 °F</label>
+            <label for="range">Selected temperature: <span id="range-text">50</span> °F</label>
             <input type="range" min="32" max="68" value="50" id="range">
 
             <footer>
                 <a href="#cancel" role="button" class="secondary" data-target="modify-temperature-range" onclick="toggleModal(event)">Cancel</a>
-                <a href="#confirm" role="button" id="temprange">Modify</a>
+                <a href="#confirm" role="button" id="modify-temperature-range-btn" data-target="modify-temperature-range" onclick="toggleModal(event)">Modify</a>
               </footer>
         </article>
     </dialog>
@@ -27,12 +27,12 @@
         <article>
             <h3>Modify LED color</h3>
             
-            <label for="color">Selected color: #00897b</label>
+            <label for="color">Selected color: <span id="color-text">#00897b</span></label>
             <input type="color" value="#00897b" id="color">
 
             <footer>
                 <a href="#cancel" role="button" class="secondary" data-target="modify-led-color" onclick="toggleModal(event)">Cancel</a>
-                <a href="#confirm" role="button">Modify</a>
+                <a href="#confirm" role="button" id="modify-led-color-btn" data-target="modify-led-color" onclick="toggleModal(event)">Modify</a>
               </footer>
         </article>
     </dialog>
@@ -46,7 +46,7 @@
 
             <footer>
                 <a href="#cancel" role="button" class="secondary" data-target="update-pin-code" onclick="toggleModal(event)">Cancel</a>
-                <a href="#confirm" role="button" id="update-pin-code-btn">Update</a>
+                <a href="#confirm" role="button" id="update-pin-code-btn" data-target="update-pin-code" onclick="toggleModal(event)">Update</a>
               </footer>
         </article>
     </dialog>
@@ -56,17 +56,15 @@
         <!-- Login -->
         <div id="login">
             <article class="login">
-                <form id="form">
-                    <div class="headings">
-                        <h1>Log in</h1>
-                        <p>Please enter your PIN code to log in to your TechBeer</p>
-                    </div>
-        
-                    <label for="pin">PIN</label>
-                    <input type="password" id="pin" name="pin">
-        
-                    <button type="submit">Log in</button>
-                </form>
+                <div class="headings">
+                    <h1>Log in</h1>
+                    <p>Please enter your PIN code to log in to your TechBeer</p>
+                </div>
+    
+                <label for="pin">PIN</label>
+                <input type="password" id="pin" name="pin">
+    
+                <button id="login-btn">Log in</button>
             </article>
         </div>
 
@@ -90,7 +88,7 @@
                         <div>
                             <button data-target="modify-temperature-range" onclick="toggleModal(event)">🌡️ Modify temperature range</button>
                         </div>
-                        <div>
+                        <div style="display: none;">
                             <button data-target="modify-led-color" onclick="toggleModal(event)">💡 Modify LED color</button>
                         </div>
                         <div>
