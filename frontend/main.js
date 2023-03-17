@@ -17,3 +17,4 @@ temprange.addEventListener('click', (event) => {
 pinButton.addEventListener('click', (event) => {
     window.TechBeer.updatePinCode()
 })
+
