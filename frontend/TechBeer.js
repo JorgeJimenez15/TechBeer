@@ -103,4 +103,11 @@ export default class TechBeer {
 
         if (response === 'Success') this.pin = newPin
     }
+
+    async updateRange() {
+        const newRange = document.getElementById('range').value
+        const response = await this.api('modify-temperature-range', newRange)
+
+        if (response === 'Success') this.range = newRange
+    }
 }
